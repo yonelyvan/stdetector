@@ -1,2 +1,4 @@
 # stdetector
-Stress level detector
+## release
+flutter build apk
+flutter build appbundle
