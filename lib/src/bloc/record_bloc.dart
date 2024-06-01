@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import '../../pair.dart';
+import 'package:stdetector/utils/pair.dart';
+
 import '../model/record.dart';
 import '../model/status_tab_bar.dart';
 import '../repository/data.dart';
-
 
 class RecordBloc {
   final Data data = Data();
@@ -15,27 +15,37 @@ class RecordBloc {
   final _recordListStreamController = StreamController<Map<int, Record>>();
 
   final _addRecordStreamController = StreamController<Record>();
-  //final _readTasksStreamController = StreamController<Record>();
-  final _updateRecordStreamController = StreamController<Pair<Record,Record>>();
+
+  final _updateRecordStreamController =
+      StreamController<Pair<Record, Record>>();
   final _removeRecordStreamController = StreamController<Record>();
+
   //for status tab_bar
   final _statusBarStreamController = StreamController<StatusMenuTab>();
   final _changeStatusTabBarStreamController = StreamController<StatusMenuTab>();
 
   /// getters : Stream & sinks
-  Stream<Map<int, Record>> get recordListStream => _recordListStreamController.stream;
-  StreamSink<Map<int, Record>> get recordListSink => _recordListStreamController.sink;
+  Stream<Map<int, Record>> get recordListStream =>
+      _recordListStreamController.stream;
+
+  StreamSink<Map<int, Record>> get recordListSink =>
+      _recordListStreamController.sink;
 
   StreamSink<Record> get addRecord => _addRecordStreamController.sink;
-  StreamSink<Pair<Record,Record>> get updateRecord => _updateRecordStreamController.sink;
+
+  StreamSink<Pair<Record, Record>> get updateRecord =>
+      _updateRecordStreamController.sink;
+
   StreamSink<Record> get removeRecord => _removeRecordStreamController.sink;
+
   //for status tab_bar
-  Stream<StatusMenuTab> get statusBarStream => _statusBarStreamController.stream;//for ui
-  StreamSink<StatusMenuTab> get statusBarSink => _statusBarStreamController.sink;//for ui
+  Stream<StatusMenuTab> get statusBarStream =>
+      _statusBarStreamController.stream; //for ui
+  StreamSink<StatusMenuTab> get statusBarSink =>
+      _statusBarStreamController.sink; //for ui
 
-  StreamSink<StatusMenuTab> get changeStatusTabBar => _changeStatusTabBarStreamController.sink;
-  //StreamSink<StatusMenuTab> get statusBarSink => _addStatusTabBarStreamController.sink;
-
+  StreamSink<StatusMenuTab> get changeStatusTabBar =>
+      _changeStatusTabBarStreamController.sink;
 
   /// construct set listeners for changes
   RecordBloc() {
@@ -56,7 +66,6 @@ class RecordBloc {
 
   /// call functions
   _addRecord(Record record) {
-    //print(">>>>>>>>>>>>>>>>>>>>>>>>> on received: record_bloc");
     data.insertNewRecord(record).then((r) {
       _recordMapList[r.id] = r;
       recordListSink.add(_recordMapList);
@@ -70,22 +79,12 @@ class RecordBloc {
     });
   }
 
-  /*
-  _readRecords() {
-    data.getMapRecords().then((r) {
-      _taskMapList = r;
-      //_taskListStreamController.add(_taskMapList);
-      recordListSink.add(_taskMapList);
-    });
-  }*/
-
-  _updateRecord(Pair<Record,Record> p) {
+  _updateRecord(Pair<Record, Record> p) {
     data.updateTask(p).then((value) {
       if (value >= 1) {
         _recordMapList[p.older.id] = p.newer;
         recordListSink.add(_recordMapList);
       }
-      ///TODO: show message of error on update
     });
   }
 
@@ -95,31 +94,24 @@ class RecordBloc {
         _recordMapList.remove(record.id);
         recordListSink.add(_recordMapList);
       }
-      ///TODO: show message of error on remove
     });
-    
   }
 
   //for status tab bar
-  _changeStatus(StatusMenuTab newStatus){
-    //print(">>>>>>>>>>>>>>>>>>>>>>>>> on received status Bar: record_bloc");
+  _changeStatus(StatusMenuTab newStatus) {
     _statusMenuTab = newStatus;
-    //statusBarSink.add(_statusMenuTab);
+
     _statusBarStreamController.add(_statusMenuTab);
-    //print(">>>>>>>>>>>>>>>>>>>>>>>>> updates status Bar: $_statusMenuTab");
   }
-
-
 
   ///dispose *
   void dispose() {
     _recordListStreamController.close();
     _addRecordStreamController.close();
-    //_readTasksStreamController.close();
+
     _updateRecordStreamController.close();
     _removeRecordStreamController.close();
 
-    //for tab bar screen
     _statusBarStreamController.close();
     _changeStatusTabBarStreamController.close();
   }

@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdetector/src/ui/screens/home.dart';
 
 class Permissions extends StatefulWidget {
+  const Permissions({super.key});
+
   @override
   State<StatefulWidget> createState() => _PermissionsState();
 }
 
 class _PermissionsState extends State<Permissions> {
+  /// Logger for debugging
+  final logger = Logger();
+
   bool permissionsBluetooth = false;
   bool permissionsGps = false;
 
@@ -17,9 +23,10 @@ class _PermissionsState extends State<Permissions> {
       setState(() {
         permissionsBluetooth = true;
       });
-      // Bluetooth permission granted, proceed with Bluetooth functionality
+      logger.i(
+          "Bluetooth permission granted, proceed with Bluetooth functionality");
     } else {
-      // Bluetooth permission denied
+      logger.i("Bluetooth permission denied");
     }
   }
 
@@ -47,7 +54,7 @@ class _PermissionsState extends State<Permissions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Grant permissions"),
+        title: const Text("Grant permissions"),
       ),
       body: Center(
         child: TextButton(
@@ -59,7 +66,7 @@ class _PermissionsState extends State<Permissions> {
             if (_permissionsGranted) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Home()),
+                MaterialPageRoute(builder: (context) => const Home()),
               );
             } else {
               requestBluetoothPermissions();
@@ -67,11 +74,11 @@ class _PermissionsState extends State<Permissions> {
             }
           },
           child: _permissionsGranted
-              ? Text(
+              ? const Text(
                   'Go to Stress Detector',
                   style: TextStyle(color: Colors.white),
                 )
-              : Text(
+              : const Text(
                   "Grant permissions",
                   style: TextStyle(color: Colors.white),
                 ),

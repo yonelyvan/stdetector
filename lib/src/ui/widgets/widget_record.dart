@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
+
 import '../../model/record.dart';
 
 class WidgetRecord extends StatefulWidget {
@@ -9,8 +11,9 @@ class WidgetRecord extends StatefulWidget {
   final Function onTouch;
   final bool editing;
 
-  WidgetRecord(
-      {required this.record,
+  const WidgetRecord(
+      {super.key,
+      required this.record,
       required this.onSelected,
       required this.onUnselected,
       required this.onTouch,
@@ -25,14 +28,17 @@ class WidgetRecord extends StatefulWidget {
 class WidgetRecordState extends State<WidgetRecord> {
   bool selected = false;
 
+  /// Logger for debugging
+  final logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     try {
       if (!widget.editing) {
         selected = false;
       }
-    } catch (e) {
-      print(e);
+    } catch (error, stacktrace) {
+      logger.e(error, stackTrace: stacktrace);
     }
 
     return GestureDetector(
@@ -50,8 +56,6 @@ class WidgetRecordState extends State<WidgetRecord> {
             selected = true;
           });
         }
-        print(">>>>>>>>>>>>>>>>> long press");
-        print(selected);
       },
       onTap: () {
         if (widget.editing) {
@@ -68,18 +72,14 @@ class WidgetRecordState extends State<WidgetRecord> {
           }
         } else {
           setState(() {
-            //widget.record.isCompleted = !widget.record.isCompleted;
             widget.onTouch(widget.record);
-            //widget.optionController.update(widget.task);
           });
-
-          //print(">>>>>>>>>>>>>>>>>>>>> Completed tast ${widget.task.label}");
         }
       },
       child: Card(
         color: selected ? Colors.blue : Colors.white70,
         child: ListTile(
-          leading: Icon(
+          leading: const Icon(
             Icons.back_hand,
             color: Colors.grey,
           ),
@@ -97,26 +97,8 @@ class WidgetRecordState extends State<WidgetRecord> {
               ),
             ],
           ),
-
-          ///trailing: Icon(Icons.more_vert),
         ),
       ),
     );
   }
 }
-
-/**
-Card(
-        color: selected ? Colors.deepOrange : Colors.white70,
-        child: ListTile(
-          leading: Icon( Icons.back_hand,
-            color: Colors.grey,
-          ),
-          title: Text(
-            widget.record.filename,
-          ),
-
-          ///trailing: Icon(Icons.more_vert),
-        ),
-      ),
-*/

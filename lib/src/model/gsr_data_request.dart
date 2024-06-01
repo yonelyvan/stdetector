@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class GsrDataRequest {
   int gsr;
   int currentStressLevel;
@@ -19,5 +17,3 @@ class GsrDataRequest {
     };
   }
 }
-
-
