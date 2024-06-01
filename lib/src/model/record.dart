@@ -1,31 +1,24 @@
 import 'package:sqflite/sqflite.dart';
 
 class Record {
-
-  static final String TABLE_NAME = "records"; // real
+  static const String tableName = "records"; // real
   int id;
   String filename;
   int samples;
   DateTime date;
 
   Record(
-      {this.id = 0, this.filename = "", this.samples=0, required this.date});
+      {this.id = 0, this.filename = "", this.samples = 0, required this.date});
 
-  void printRecord() {
-    print(
-        "RecordId: _id: $id, filename: $filename, samples: $samples, date: $date");
-  }
-
-  String dateToLocalFormat(){
+  String dateToLocalFormat() {
     String s = "";
-    String m=date.month.toString();
-    m = m.length<=1? "0$m" : m;
-    String d=date.day.toString();
-    d = d.length<=1? "0$d" : d;
+    String m = date.month.toString();
+    m = m.length <= 1 ? "0$m" : m;
+    String d = date.day.toString();
+    d = d.length <= 1 ? "0$d" : d;
     s = "${date.year}-$m-$d  ${date.hour}:${date.minute}";
     return s;
   }
-
 
   factory Record.fromMap(Map<dynamic, dynamic> map) {
     return Record(
@@ -37,14 +30,14 @@ class Record {
 
   void createTable(Database db) {
     db.rawUpdate(
-        "CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, filename VARCHAR(256), samples INTEGER, date INTEGER)");
+        "CREATE TABLE $tableName(_id integer primary key autoincrement, filename VARCHAR(256), samples INTEGER, date INTEGER)");
   }
 
   // to insert sqlite
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       "filename": filename,
-      "samples": this.samples,
+      "samples": samples,
       "date": date.millisecondsSinceEpoch
     };
     map.removeWhere((key, value) => value == null);

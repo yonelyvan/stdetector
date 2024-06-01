@@ -1,12 +1,14 @@
 import 'dart:collection';
+
 import 'package:stdetector/utils/stress_levels.dart';
 
 import 'gsr_data.dart';
 
 class GSRBuffer {
   late Queue<double> _queue;
+
   /// the maximum frames in real time. Case: if 4hz there are 4*60 in 1 minute
-  int _maxBuffer = 60*30;
+  final int _maxBuffer = 60 * 30;
   int _currentStressLevel = 1;
 
   GSRBuffer() {
@@ -20,15 +22,15 @@ class GSRBuffer {
     _queue.add(value);
   }
 
-  void clear(){
-    if(_queue.length>0){
+  void clear() {
+    if (_queue.isNotEmpty) {
       _queue.clear();
     }
   }
 
   /// GET data to plot the signal
   List<GSRData> getData() {
-    List<GSRData> data = [];//new List<GSRData>();
+    List<GSRData> data = []; //new List<GSRData>();
     int cont = 0;
     String time = "0";
     for (double e in _queue) {
@@ -40,16 +42,17 @@ class GSRBuffer {
   }
 
   //TODO: process stress levels
-  List<GSRData>  getProcessData(){
-    StressLevelsProcessing stressLevelsProcessing = new StressLevelsProcessing(signal: getSignalBuffer());
+  List<GSRData> getProcessData() {
+    StressLevelsProcessing stressLevelsProcessing =
+        StressLevelsProcessing(signal: getSignalBuffer());
     List<double> r = stressLevelsProcessing.getResult();
     List<GSRData> data = [];
-    for(int i=0; i<r.length; i++){
+    for (int i = 0; i < r.length; i++) {
       String time = i.toString();
       data.add(GSRData(time: time, value: r[i]));
     }
-    if(r.length>0){
-      _currentStressLevel = (r[r.length-1]).round();//el ultimo nivel
+    if (r.isNotEmpty) {
+      _currentStressLevel = (r[r.length - 1]).round(); // last level
     }
 
     return data;
@@ -57,35 +60,34 @@ class GSRBuffer {
 
   int get currentStressLevel => _currentStressLevel;
 
-  int min(int a, int b) => a<b?a:b;
+  int min(int a, int b) => a < b ? a : b;
 
-  List<List<int>> getMatrixSignalAndStressLevels(){
+  List<List<int>> getMatrixSignalAndStressLevels() {
     List<List<int>> r = [];
     List<double> signal = getSignalBuffer();
     List<GSRData> level = getProcessData();
     List<int> s = [];
     List<int> sl = [];
-    for(double e in signal){
+    for (double e in signal) {
       s.add(e.toInt());
     }
-    for(GSRData e in level){
+    for (GSRData e in level) {
       sl.add(e.value.toInt());
     }
-    int l = min(s.length,sl.length);
-    for(int i =0; i<l; i++){
-      r.add( [s[i], sl[i]] );
+    int l = min(s.length, sl.length);
+    for (int i = 0; i < l; i++) {
+      r.add([s[i], sl[i]]);
     }
     return r;
   }
 
-
   List<double> getSignalBuffer() => _queue.toList();
 
   int get length => _queue.length;
+
   int get timeInSeconds => _queue.length;
-  double get timeInMinutes{
-    return (_queue.length)/60.0;
+
+  double get timeInMinutes {
+    return (_queue.length) / 60.0;
   }
-
-
 }

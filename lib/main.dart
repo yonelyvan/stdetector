@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:stdetector/src/ui/screens/home.dart';
 import 'package:stdetector/src/ui/screens/permissions.dart';
 
-
+///
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
+/// This is the main application widget.
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,9 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Permissions(),
+      home: const Permissions(),
     );
   }
 }
-
-

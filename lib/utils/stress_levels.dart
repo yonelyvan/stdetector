@@ -1,13 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 class StressLevelsProcessing {
   final List<double> signal;
 
   StressLevelsProcessing({required this.signal});
 
-  // 1) Preprocesing (noise reduction)
+  /// 1) Preprocesing (noise reduction)
   List<double> medianFilter(List<double> signal) {
     int lenFilter = 25; //TODO: default 100;
     int lenSignal = signal.length;
@@ -30,7 +28,7 @@ class StressLevelsProcessing {
     return suavizado;
   }
 
-  //2 Agregation
+  ///2 Agregation
   List<double> aggregation(List<double> signal) {
     int lenFilter = 60; //TODO: default 240(4hz)  1 minute sampling
     List<double> aggregated = [];
@@ -51,12 +49,12 @@ class StressLevelsProcessing {
     return aggregated;
   }
 
-  // 3) Discretization
+  /// 3) Discretization
   double mean(List<double> signal) {
     double s = 0;
-    signal.forEach((double e) {
+    for (var e in signal) {
       s += e;
-    });
+    }
     return s / (signal.length);
   }
 
@@ -70,18 +68,21 @@ class StressLevelsProcessing {
     return stdDeviation;
   }
 
+  ///
   List<double> znorm(List<double> signal, {double znormTheshold = 0.01}) {
     List<double> r = [];
     double std = standardDeviation(signal);
+
     ///print("STD: $std");
     if (std < znormTheshold) {
       return signal;
     } else {
       double m = mean(signal);
+
       ///print("Media: $m");
-      signal.forEach((e) {
+      for (var e in signal) {
         r.add((e - m) / std);
-      });
+      }
       return r;
     }
   }
@@ -105,34 +106,32 @@ class StressLevelsProcessing {
 
   // 3.1 -----------------final dicretization
 
-// Convert a numerical index to a char
+  /// Convert a numerical index to a char
   String idx2letter(int idx) {
     if (0 <= idx && idx < 5) {
       return String.fromCharCode(97 + idx);
     } else {
-      String text = "Warning: idx2letter idx out of range";
-      print("\x1B[33m$text\x1B[0m");
       return String.fromCharCode(97);
     }
   }
 
-// num-to-string conversion.
-  List<String> ts_to_string(List<double> series, List<double> cuts) {
-    int a_size = cuts.length;
+  /// num-to-string conversion.
+  List<String> tsToString(List<double> series, List<double> cuts) {
+    int aSize = cuts.length;
     List<String> sax = [];
     for (int i = 0; i < series.length; i++) {
       double num = series[i];
       //if the number below 0, start from the bottom, or else from the top
       int j;
       if (num >= 0) {
-        j = a_size - 1;
+        j = aSize - 1;
         while ((j > 0) && (cuts[j] >= num)) {
           j = j - 1;
         }
         sax.add(idx2letter(j));
       } else {
         j = 1;
-        while ((j < a_size) && (cuts[j] <= num)) {
+        while ((j < aSize) && (cuts[j] <= num)) {
           j = j + 1;
         }
         sax.add(idx2letter(j - 1));
@@ -141,7 +140,7 @@ class StressLevelsProcessing {
     return sax;
   }
 
-  List<double> cuts_for_asize(int a_size) {
+  List<double> cutsForASize(int aSize) {
     double inf = 999999;
     Map<int, List<double>> options = {
       3: [-inf, -0.4307273, 0.4307273],
@@ -153,11 +152,11 @@ class StressLevelsProcessing {
         0.841621233572914
       ]
     };
-    return options[a_size] as List<double>;
+    return options[aSize] as List<double>;
   }
 
-  List<int> discretizar(List<double> signal) {
-    Map<String, int> alphabet_values = {
+  List<int> discretize(List<double> signal) {
+    Map<String, int> alphabetValues = {
       'a': 1,
       'b': 2,
       'c': 3,
@@ -165,24 +164,24 @@ class StressLevelsProcessing {
       'e': 5
     }; //*
     List<String> abc =
-        ts_to_string(signal, cuts_for_asize(5)); // abc : (cadena de String)
+        tsToString(signal, cutsForASize(5)); // abc : (cadena de String)
     List<int> r = [];
     for (int i = 0; i < abc.length; i++) {
-      int val = alphabet_values[abc[i]] as int;
+      int val = alphabetValues[abc[i]] as int;
       r.add(val);
     }
     return r;
   }
 
   List<double> getResult() {
-    List<double> signalSuavizado = medianFilter(signal);
-    List<double> aggregated = aggregation(signalSuavizado);
+    List<double> smoothSignal = medianFilter(signal);
+    List<double> aggregated = aggregation(smoothSignal);
     List<double> ppaV = aggregationPAA(aggregated);
-    List<int> eda_discretizado = discretizar(ppaV);
+    List<int> edaDiscretized = discretize(ppaV);
     List<double> r = [];
-    eda_discretizado.forEach((e) {
+    for (var e in edaDiscretized) {
       r.add(e * 1.0);
-    });
+    }
 
     return r;
   }

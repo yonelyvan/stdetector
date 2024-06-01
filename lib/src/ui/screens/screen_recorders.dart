@@ -1,25 +1,27 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../pair.dart';
+import 'package:stdetector/utils/pair.dart';
+
 import '../../bloc/record_bloc.dart';
 import '../../model/record.dart';
 import '../../repository/files.dart';
 import '../widgets/widget_record.dart';
 
 class ScreenRecorders extends StatefulWidget {
+  const ScreenRecorders({super.key});
+
   @override
-  _ScreenRecorders createState() {
+  State<ScreenRecorders> createState() {
     return _ScreenRecorders();
   }
 }
 
 class _ScreenRecorders extends State<ScreenRecorders> {
   final RecordBloc _recordBloc = RecordBloc();
-  bool editing = false;
-  Map<dynamic, Record> _selectedRecords = Map<dynamic, Record>();
+  bool isEditing = false;
+  final Map<dynamic, Record> _selectedRecords = {};
 
   @override
   void initState() {
@@ -36,10 +38,9 @@ class _ScreenRecorders extends State<ScreenRecorders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-        appBar: AppBar(
-        title: Text("Records"),
-        actions: <Widget>[isEditing() ? options(context) : Text("")],
+      appBar: AppBar(
+        title: const Text("Records"),
+        actions: [options(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0.0),
@@ -65,8 +66,8 @@ class _ScreenRecorders extends State<ScreenRecorders> {
                           record: taskList[index],
                           onSelected: onSelected,
                           onUnselected: onUnselected,
-                          onTouch: onTouch,
-                          editing: editing,
+                          onTouch: () {},
+                          editing: isEditing,
                         ),
                         Container(
                           height: 100,
@@ -78,8 +79,8 @@ class _ScreenRecorders extends State<ScreenRecorders> {
                       record: taskList[index],
                       onSelected: onSelected,
                       onUnselected: onUnselected,
-                      onTouch: onTouch,
-                      editing: editing,
+                      onTouch: () {},
+                      editing: isEditing,
                     );
                   }
                 },
@@ -92,40 +93,38 @@ class _ScreenRecorders extends State<ScreenRecorders> {
     );
   }
 
-
-
   Widget options(BuildContext context) {
-    if (isEditing()) {
+    if (isEditing) {
       return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         _selectedRecords.length < 2
             ? IconButton(
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   _showDialogUpdate(context);
                 },
               )
-            : SizedBox(width: 2.0),
-        SizedBox(
+            : const SizedBox(width: 2.0),
+        const SizedBox(
           height: 15,
         ),
         IconButton(
-          icon: Icon(Icons.delete),
+          icon: const Icon(Icons.delete),
           onPressed: () {
             _showDialogDelete(context);
           },
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         IconButton(
-          icon: Icon(Icons.share),
+          icon: const Icon(Icons.share),
           onPressed: () {
             _shareFiles();
           },
         ),
       ]);
     } else {
-      return SizedBox(width: 2.0);
+      return const SizedBox(width: 2.0);
     }
   }
 
@@ -134,16 +133,16 @@ class _ScreenRecorders extends State<ScreenRecorders> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15))),
             //title: Text(' '),
-            content: Text("Delete selected records"),
+            content: const Text("Delete selected records"),
             actions: <Widget>[
               TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text("cancel")),
+                  child: const Text("cancel")),
               TextButton(
                 onPressed: () {
                   _selectedRecords.forEach((k, r) {
@@ -155,11 +154,11 @@ class _ScreenRecorders extends State<ScreenRecorders> {
                   //widget.updateCard(); //update parent
                   setState(() {
                     _selectedRecords.clear();
-                    editing = false;
+                    isEditing = false;
                   });
                   Navigator.of(context).pop();
                 },
-                child: Text("delete"),
+                child: const Text("delete"),
               )
             ],
           );
@@ -176,18 +175,18 @@ class _ScreenRecorders extends State<ScreenRecorders> {
         filename: tempRecord.filename,
         samples: tempRecord.samples,
         date: tempRecord.date);
-    String filename = tempRecord.filename.substring(0, (tempRecord.filename.length-4) ); // remove .csv
+    String filename = tempRecord.filename
+        .substring(0, (tempRecord.filename.length - 4)); // remove .csv
 
-    ///suponiendo q solo hay un objeto
     final controllerEn = TextEditingController(text: filename);
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15))),
-            title: Text("Update"),
-            content: Container(
+            title: const Text("Update"),
+            content: SizedBox(
               width: double.maxFinite,
               child: SingleChildScrollView(
                 child: Column(
@@ -197,7 +196,7 @@ class _ScreenRecorders extends State<ScreenRecorders> {
                       onChanged: (value) {
                         filename = value;
                       },
-                      decoration: InputDecoration(labelText: "filename"),
+                      decoration: const InputDecoration(labelText: "filename"),
                     ),
                   ],
                 ),
@@ -205,20 +204,20 @@ class _ScreenRecorders extends State<ScreenRecorders> {
             ),
             actions: <Widget>[
               TextButton(
-                child: Text("Cancel"),
+                child: const Text("Cancel"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               TextButton(
-                child: Text("Save"),
+                child: const Text("Save"),
                 onPressed: () {
                   tempRecord.filename = "$filename.csv";
                   _recordBloc.updateRecord.add(Pair<Record, Record>(
                       older: oldRecord, newer: tempRecord));
                   setState(() {
                     _selectedRecords.clear();
-                    editing = false;
+                    isEditing = false;
                   });
                   //widget.updateCard();
                   Navigator.of(context).pop();
@@ -229,82 +228,54 @@ class _ScreenRecorders extends State<ScreenRecorders> {
         });
   }
 
-  ///functions
+  /// convert map to list
   List<Record> mapToList(Map<dynamic, Record> mapTasks) {
-    List<Record> recordtList = [];
+    List<Record> recordList = [];
     List<Record> temp = [];
-    if (mapTasks == null) {
-      return temp;
-    } else {
-      mapTasks.forEach((key, value) {
-        recordtList.add(value);
-      });
-      //read inverse, the uncompleted tasks at the end
-      int numTasks = recordtList.length;
-      for (int i = (numTasks - 1); i >= 0; i--) {
-        temp.add(recordtList[i]);
-      }
-
-      return temp;
+    mapTasks.forEach((key, value) {
+      recordList.add(value);
+    });
+    //read inverse, the uncompleted tasks at the end
+    int numTasks = recordList.length;
+    for (int i = (numTasks - 1); i >= 0; i--) {
+      temp.add(recordList[i]);
     }
+
+    return temp;
   }
 
-  void onTouch(Record record) {
-    //_taskBloc.updateTask.add(task);
-    //widget.updateCard();
-  }
-
+  /// Action on select record
   void onSelected(Record record) {
     setState(() {
       _selectedRecords[record.id] = record;
-      editing = true;
+      isEditing = true;
     });
-    //_updateOptions();
   }
 
+  /// Action on unselect record
   void onUnselected(Record record) {
     setState(() {
       _selectedRecords.remove(record.id);
     });
-    if (_selectedRecords.length <= 0) {
+    if (_selectedRecords.isEmpty) {
       setState(() {
-        editing = false;
+        isEditing = false;
       });
     }
-    //_updateOptions();
   }
 
-  /*
-  void _updateOptions(){
-    print(">>>>>>>>>> set status lenDataSelected: ${_selectedTasks.length}");
-    if(_selectedTasks.length<1){
-      _recordBloc.changeStatusTabBar.add(StatusMenuTab.none);
-    }
-    if(_selectedTasks.length==1){
-      _recordBloc.changeStatusTabBar.add(StatusMenuTab.options);
-    }
-    if(_selectedTasks.length>1){
-      _recordBloc.changeStatusTabBar.add(StatusMenuTab.option);
-    }
-  }*/
-
-  bool isEditing() {
-    if (editing == null) {
-      return false;
-    }
-    return editing;
-  }
-
+  /// share files
   void _shareFiles() async {
     Files files = Files();
     List<String> pathFiles = [];
+    List<XFile> pathXFiles = [];
     for (Record r in _selectedRecords.values) {
       File file = await files.getLocalFile(r);
-      print(
-          ">>>>>>>>>>>>>>>>>> filll List files paths ${file.path} | ${r.filename}");
       pathFiles.add(file.path);
+      pathXFiles.add(XFile(file.path));
     }
-    print(">>>>>>>>>>>>>>>>>>ready to share files");
-    Share.shareFiles(pathFiles, text: 'GSR records, signal and stress level');
+
+    Share.shareXFiles(pathXFiles);
+    await Share.shareXFiles(pathXFiles);
   }
 }
